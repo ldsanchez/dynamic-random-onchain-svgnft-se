@@ -27,7 +27,8 @@ const { isAddress, getAddress, formatUnits, parseUnits } = utils;
 //
 // Select the network you want to deploy to here:
 //
-const defaultNetwork = "localhost";
+// const defaultNetwork = "localhost";
+const defaultNetwork = "rinkeby";
 
 const mainnetGwei = 21;
 
@@ -65,6 +66,12 @@ module.exports = {
   // Follow the directions, and uncomment the network you wish to deploy to.
 
   networks: {
+    hardhat: {
+      mining: {
+        auto: false,
+        interval: 5000,
+      },
+    },
     localhost: {
       url: "http://localhost:8545",
       /*      
@@ -262,6 +269,24 @@ module.exports = {
   solidity: {
     compilers: [
       {
+        version: "0.8.13",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
+      },
+      {
+        version: "0.8.0",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
+      },
+      {
         version: "0.8.4",
         settings: {
           optimizer: {
@@ -272,6 +297,24 @@ module.exports = {
       },
       {
         version: "0.6.7",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
+      },
+      {
+        version: "0.6.6",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
+      },
+      {
+        version: "0.4.24",
         settings: {
           optimizer: {
             enabled: true,
@@ -300,7 +343,7 @@ module.exports = {
     runOnCompile: true,
     clear: true,
     flat: true,
-    only: [],
+    only: ["RandomSVG.sol"],
     spacing: 2,
     pretty: false,
   },
