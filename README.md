@@ -1,26 +1,23 @@
-# 🏗 Scaffold-ETH
+# 🏗 scaffold-ETH - Dynamic Random SVG NFT
 
-> everything you need to build on Ethereum! 🚀
+> A Fully On-Chain Random SVG NFT based on Boring Avatars art, that when minted are HAPPY or SAD based on the ETH price given by the Chainlink EthUsd DataFeed in respect to a Threshold! 🚀
 
-🧪 Quickly experiment with Solidity using a frontend that adapts to your smart contract:
-
-![image](https://user-images.githubusercontent.com/2653167/124158108-c14ca380-da56-11eb-967e-69cde37ca8eb.png)
-
+![Ethereum_App](https://user-images.githubusercontent.com/5996795/170857323-42e2dac0-3dce-47fe-bf94-e71302af8261.png)
 
 # 🏄‍♂️ Quick Start
 
 Prerequisites: [Node (v16 LTS)](https://nodejs.org/en/download/) plus [Yarn](https://classic.yarnpkg.com/en/docs/install/) and [Git](https://git-scm.com/downloads)
 
-> clone/fork 🏗 scaffold-eth:
+> clone/fork 🏗 scaffold-eth: Multisig Wallet Factory
 
 ```bash
-git clone https://github.com/scaffold-eth/scaffold-eth.git
+git clone https://github.com/ldsanchez/dynamic-random-onchain-svgnft-se.git
 ```
 
 > install and start your 👷‍ Hardhat chain:
 
 ```bash
-cd scaffold-eth
+cd dynamic-random-onchain-svgnft-se
 yarn install
 yarn chain
 ```
@@ -28,74 +25,60 @@ yarn chain
 > in a second terminal window, start your 📱 frontend:
 
 ```bash
-cd scaffold-eth
+cd dynamic-random-onchain-svgnft-se
 yarn start
 ```
 
 > in a third terminal window, 🛰 deploy your contract:
 
 ```bash
-cd scaffold-eth
+cd dynamic-random-onchain-svgnft-se
 yarn deploy
 ```
 
-🔏 Edit your smart contract `YourContract.sol` in `packages/hardhat/contracts`
+🔏 Edit your smart contract `DynamicRSVGNFT.sol` in `packages/hardhat/contracts`
 
-📝 Edit your frontend `App.jsx` in `packages/react-app/src`
+📝 Edit your frontend `App.jsx` in `packages/react-app/src`, `BoringAvatars.jsx` & `YourBoringAvatars.jsx` in `packages/react-app/src/views`
 
 💼 Edit your deployment scripts in `packages/hardhat/deploy`
 
 📱 Open http://localhost:3000 to see the app
 
-# 📚 Documentation
+# Deploy it! 🛰
 
-Documentation, tutorials, challenges, and many more resources, visit: [docs.scaffoldeth.io](https://docs.scaffoldeth.io)
+📡 Edit the defaultNetwork in packages/hardhat/hardhat.config.js, as well as targetNetwork in packages/react-app/src/App.jsx, to your choice of public EVM networks
 
+👩‍🚀 You will want to run yarn account to see if you have a deployer address.
 
-# 🍦 Other Flavors
-- [scaffold-eth-typescript](https://github.com/scaffold-eth/scaffold-eth-typescript)
-- [scaffold-nextjs](https://github.com/scaffold-eth/scaffold-eth/tree/scaffold-nextjs)
-- [scaffold-chakra](https://github.com/scaffold-eth/scaffold-eth/tree/chakra-ui)
-- [eth-hooks](https://github.com/scaffold-eth/eth-hooks)
-- [eth-components](https://github.com/scaffold-eth/eth-components)
-- [scaffold-eth-expo](https://github.com/scaffold-eth/scaffold-eth-expo)
+🔐 If you don't have one, run yarn generate to create a mnemonic and save it locally for deploying.
 
+🛰 Use a faucet like faucet.paradigm.xyz to fund your deployer address (run yarn account again to view balances)
 
-# 🔭 Learning Solidity
+🛰 This contract uses VRF so remember to also send some link tokens
 
-📕 Read the docs: https://docs.soliditylang.org
+🚀 Run yarn deploy to deploy to your public network of choice (😅 wherever you can get ⛽️ gas)
 
-📚 Go through each topic from [solidity by example](https://solidity-by-example.org) editing `YourContract.sol` in **🏗 scaffold-eth**
+🔬 Inspect the block explorer for the network you deployed to... make sure your contract is there.
 
-- [Primitive Data Types](https://solidity-by-example.org/primitives/)
-- [Mappings](https://solidity-by-example.org/mapping/)
-- [Structs](https://solidity-by-example.org/structs/)
-- [Modifiers](https://solidity-by-example.org/function-modifier/)
-- [Events](https://solidity-by-example.org/events/)
-- [Inheritance](https://solidity-by-example.org/inheritance/)
-- [Payable](https://solidity-by-example.org/payable/)
-- [Fallback](https://solidity-by-example.org/fallback/)
+# 🚢 Ship it! 🚁
 
-📧 Learn the [Solidity globals and units](https://docs.soliditylang.org/en/latest/units-and-global-variables.html)
+✏️ Edit your frontend App.jsx in packages/react-app/src to change the targetNetwork to wherever you deployed your contract.
 
-# 🛠 Buidl
+📦 Run yarn build to package up your frontend.
 
-Check out all the [active branches](https://github.com/scaffold-eth/scaffold-eth/branches/active), [open issues](https://github.com/scaffold-eth/scaffold-eth/issues), and join/fund the 🏰 [BuidlGuidl](https://BuidlGuidl.com)!
+💽 Upload your app to surge with yarn surge (you could also yarn s3 or maybe even yarn ipfs?)
 
-  
- - 🚤  [Follow the full Ethereum Speed Run](https://medium.com/@austin_48503/%EF%B8%8Fethereum-dev-speed-run-bd72bcba6a4c)
+😬 Windows users beware! You may have to change the surge code in packages/react-app/package.json to just "surge": "surge ./build",
 
+⚙ If you get a permissions error yarn surge again until you get a unique URL, or customize it in the command line.
 
- - 🎟  [Create your first NFT](https://github.com/scaffold-eth/scaffold-eth/tree/simple-nft-example)
- - 🥩  [Build a staking smart contract](https://github.com/scaffold-eth/scaffold-eth/tree/challenge-1-decentralized-staking)
- - 🏵  [Deploy a token and vendor](https://github.com/scaffold-eth/scaffold-eth/tree/challenge-2-token-vendor)
- - 🎫  [Extend the NFT example to make a "buyer mints" marketplace](https://github.com/scaffold-eth/scaffold-eth/tree/buyer-mints-nft)
- - 🎲  [Learn about commit/reveal](https://github.com/scaffold-eth/scaffold-eth-examples/tree/commit-reveal-with-frontend)
- - ✍️  [Learn how ecrecover works](https://github.com/scaffold-eth/scaffold-eth-examples/tree/signature-recover)
- - 👩‍👩‍👧‍👧  [Build a multi-sig that uses off-chain signatures](https://github.com/scaffold-eth/scaffold-eth/tree/meta-multi-sig)
- - ⏳  [Extend the multi-sig to stream ETH](https://github.com/scaffold-eth/scaffold-eth/tree/streaming-meta-multi-sig)
- - ⚖️  [Learn how a simple DEX works](https://medium.com/@austin_48503/%EF%B8%8F-minimum-viable-exchange-d84f30bd0c90)
- - 🦍  [Ape into learning!](https://github.com/scaffold-eth/scaffold-eth/tree/aave-ape)
+🚔 Traffic to your url might break the Infura rate limit, edit your key: constants.js in packages/ract-app/src.
+
+# 📜 Contract Verification
+
+Update the api-key in packages/hardhat/package.json. You can get your key here.
+
+Now you are ready to run the yarn verify --network your_network command to verify your contracts on etherscan 🛰
 
 # 💌 P.S.
 
@@ -103,7 +86,12 @@ Check out all the [active branches](https://github.com/scaffold-eth/scaffold-eth
 
 📣 Make sure you update the `InfuraID` before you go to production. Huge thanks to [Infura](https://infura.io/) for our special account that fields 7m req/day!
 
+# Thanks 👏🏻
+
+To https://github.com/PatrickAlphaC for his tutorials on SVG NFTs.
+
 # 🏃💨 Speedrun Ethereum
+
 Register as a builder [here](https://speedrunethereum.com) and start on some of the challenges and build a portfolio.
 
 # 💬 Support Chat

@@ -1,4 +1,4 @@
-import { Button, Col, Menu, Row } from "antd";
+import { Button, Col, Menu, Row, Divider, Statistic } from "antd";
 import "antd/dist/antd.css";
 import {
   useBalance,
@@ -29,10 +29,13 @@ import externalContracts from "./contracts/external_contracts";
 // contracts
 import deployedContracts from "./contracts/hardhat_contracts.json";
 import { Transactor, Web3ModalSetup } from "./helpers";
-import { Home, ExampleUI, Hints, Subgraph } from "./views";
+import { Hints, Subgraph } from "./views";
 import { useStaticJsonRPC } from "./hooks";
 
-const { ethers } = require("ethers");
+import { BoringAvatars, YourBoringAvatars } from "./views";
+
+const { ethers, BigNumber } = require("ethers");
+
 /*
     Welcome to 🏗 scaffold-eth !
 
@@ -53,7 +56,8 @@ const { ethers } = require("ethers");
 */
 
 /// 📡 What chain are your contracts deployed to?
-const initialNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+// const initialNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const initialNetwork = NETWORKS.rinkeby; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
 const DEBUG = true;
@@ -166,8 +170,54 @@ function App(props) {
     "0x34aA3F359A9D614239015126635CE7732c18fDF3",
   ]);
 
-  // keep track of a variable from the contract in the local React state:
-  const purpose = useContractReader(readContracts, "YourContract", "purpose");
+  const priceToMint = useContractReader(readContracts, "DynamicRSVGNFT", "price");
+  if (DEBUG) console.log("🤗 priceToMint:", priceToMint);
+
+  const totalSupply = useContractReader(readContracts, "DynamicRSVGNFT", "totalSupply");
+  if (DEBUG) console.log("🤗 totalSupply:", totalSupply);
+  const boringAvatarsLeft = 100 - totalSupply;
+
+  const balance = useContractReader(readContracts, "DynamicRSVGNFT", "balanceOf", [address]);
+  if (DEBUG) console.log("🤗 address: ", address, " balance:", balance);
+
+  const threshold = useContractReader(readContracts, "DynamicRSVGNFT", "threshold");
+  if (DEBUG) console.log("🤗 threshold:", threshold);
+
+  //
+  // 🧠 This effect will update yourCollectibles by polling when your balance changes
+  //
+  const yourBalance = balance && balance.toNumber && balance.toNumber();
+  const [yourCollectibles, setYourCollectibles] = useState();
+  const [transferToAddresses, setTransferToAddresses] = useState({});
+
+  // const [newThreshold, setNewThreshold] = useState("loading...");
+
+  useEffect(() => {
+    const updateYourCollectibles = async () => {
+      const collectibleUpdate = [];
+      for (let tokenIndex = 0; tokenIndex < balance; tokenIndex++) {
+        try {
+          if (DEBUG) console.log("Getting token index", tokenIndex);
+          const tokenId = await readContracts.DynamicRSVGNFT.tokenOfOwnerByIndex(address, tokenIndex);
+          if (DEBUG) console.log("Getting Boring Avatar tokenId: ", tokenId);
+          const tokenURI = await readContracts.DynamicRSVGNFT.tokenURI(tokenId);
+          if (DEBUG) console.log("tokenURI: ", tokenURI);
+          const jsonManifestString = atob(tokenURI.substring(29));
+
+          try {
+            const jsonManifest = JSON.parse(jsonManifestString);
+            collectibleUpdate.push({ id: tokenId, uri: tokenURI, owner: address, ...jsonManifest });
+          } catch (e) {
+            console.log(e);
+          }
+        } catch (e) {
+          console.log(e);
+        }
+      }
+      setYourCollectibles(collectibleUpdate.reverse());
+    };
+    updateYourCollectibles();
+  }, [address, yourBalance]);
 
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
@@ -247,7 +297,11 @@ function App(props) {
   return (
     <div className="App">
       {/* ✏️ Edit the header and change the title to your project name */}
-      <Header />
+      <Header
+        link="https://github.com/ldsanchez/dynamic-random-onchain-svgnft-se"
+        title="Boring Avatars"
+        subTitle="Dynamic Random SVG NFT"
+      />
       <NetworkDisplay
         NETWORKCHECK={NETWORKCHECK}
         localChainId={localChainId}
@@ -259,6 +313,9 @@ function App(props) {
       <Menu style={{ textAlign: "center", marginTop: 40 }} selectedKeys={[location.pathname]} mode="horizontal">
         <Menu.Item key="/">
           <Link to="/">App Home</Link>
+        </Menu.Item>
+        <Menu.Item key="/YourBoringAvatars">
+          <Link to="/YourBoringAvatars">Your Boring Avatars</Link>
         </Menu.Item>
         <Menu.Item key="/debug">
           <Link to="/debug">Debug Contracts</Link>
@@ -277,10 +334,86 @@ function App(props) {
         </Menu.Item>
       </Menu>
 
+      <div style={{ maxWidth: 820, margin: "auto", marginTop: 32, paddingBottom: 32 }}>
+        <div style={{ fontSize: 16 }}>
+          <p>
+            A <strong>Fully On-Chain Random SVG NFT</strong> based on <strong>Boring Avatars</strong> art, that when
+            minted are <strong>HAPPY</strong> or <strong>SAD</strong> based on the ETH price given by the{" "}
+            <strong>Chainlink EthUsd DataFeed</strong> in respect to a <strong>Threshold</strong> currently set at:{" "}
+            <strong>{threshold && (+ethers.utils.formatEther(threshold)).toFixed(2)}</strong>
+            <p>
+              <small>
+                PS. you can change the Threshold on the debug page (use 18 decimals), also if the mint fails send some
+                more Link Tokens to the contract.
+              </small>
+            </p>
+          </p>
+          <p>
+            Only <strong>100 Boring Avatars</strong>
+          </p>
+        </div>
+
+        <Button
+          type="primary"
+          onClick={async () => {
+            const priceRightNow = await readContracts.DynamicRSVGNFT.price();
+            if (DEBUG) console.log("📟 priceRightNow:", priceRightNow);
+            try {
+              if (DEBUG) console.log("📟 Creating New Boring Avatar");
+              const txCur = await tx(writeContracts.DynamicRSVGNFT.create({ value: priceRightNow, gasLimit: 300000 }));
+              const receipt = await txCur.wait(1);
+              const requestId = receipt.logs[3].topics[1];
+              const tokenId = receipt.events[3].topics[2];
+              if (selectedChainId == 31337) {
+                const txCur2 = await tx(
+                  writeContracts.VRFCoordinatorMock.callBackWithRandomness(
+                    requestId,
+                    47372,
+                    readContracts.DynamicRSVGNFT.address,
+                    { gasLimit: 400000 },
+                  ),
+                );
+                await txCur2.wait(2);
+              }
+              if (DEBUG) console.log(`📟 Boring Avatar Created token number ${tokenId.toString()}`);
+              if (DEBUG)
+                console.log(
+                  `📟 You can view the tokenURI here: ${await readContracts.DynamicRSVGNFT.tokenURI(tokenId)}`,
+                );
+            } catch (e) {
+              if (DEBUG) console.log("Mint Failed", e);
+            }
+          }}
+        >
+          MINT for Ξ{priceToMint && (+ethers.utils.formatEther(priceToMint)).toFixed(4)}
+        </Button>
+
+        <p style={{ fontWeight: "bold" }}>{boringAvatarsLeft} left</p>
+      </div>
+
       <Switch>
         <Route exact path="/">
-          {/* pass in any web3 props to this Home component. For example, yourLocalBalance */}
-          <Home yourLocalBalance={yourLocalBalance} readContracts={readContracts} />
+          <BoringAvatars
+            readContracts={readContracts}
+            mainnetProvider={mainnetProvider}
+            blockExplorer={blockExplorer}
+            totalSupply={totalSupply}
+            DEBUG={DEBUG}
+          />
+        </Route>
+        <Route exact path="/YourBoringAvatars">
+          <YourBoringAvatars
+            readContracts={readContracts}
+            writeContracts={writeContracts}
+            priceToMint={priceToMint}
+            yourCollectibles={yourCollectibles}
+            tx={tx}
+            mainnetProvider={mainnetProvider}
+            blockExplorer={blockExplorer}
+            transferToAddresses={transferToAddresses}
+            setTransferToAddresses={setTransferToAddresses}
+            address={address}
+          />
         </Route>
         <Route exact path="/debug">
           {/*
@@ -290,7 +423,7 @@ function App(props) {
             */}
 
           <Contract
-            name="YourContract"
+            name="DynamicRSVGNFT"
             price={price}
             signer={userSigner}
             provider={localProvider}
@@ -307,7 +440,7 @@ function App(props) {
             price={price}
           />
         </Route>
-        <Route path="/exampleui">
+        {/* <Route path="/exampleui">
           <ExampleUI
             address={address}
             userSigner={userSigner}
@@ -320,7 +453,7 @@ function App(props) {
             readContracts={readContracts}
             purpose={purpose}
           />
-        </Route>
+        </Route> */}
         <Route path="/mainnetdai">
           <Contract
             name="DAI"
